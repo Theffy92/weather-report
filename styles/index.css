@@ -58,7 +58,7 @@ grid-row: 2;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    border-radius: 10px
+    border-radius: 10px;
 }
 
 .sky__section {
@@ -162,3 +162,26 @@ background-color: lightblue;
 .snowy {
 background-color: lightsteelblue;
 }
+
+/* Media query for small screens */
+@media (max-width: 800px) {
+    #landscape img {
+      width: 100%;
+    }
+  }
+  
+  /* Media query for medium screens */
+  @media (min-width: 801px) and (max-width: 900px) {
+
+    #landscape img {
+      width: 70%;
+    }
+  }
+  
+  /* Media query for large screens */
+  @media (min-width: 901px) {
+
+    #landscape img {
+      width: 80%;
+    }
+  }
