@@ -1,4 +1,7 @@
 "use strict";
+
+// const axios = require('axios');
+
 const MAX_DEGREE = 60;
 const MIN_DEGREE = -90;
 
@@ -11,8 +14,9 @@ const state ={
   headerCityName: null,
   cityNameInput: null,
   cityNameReset: null,
-  //data
-  tempValueCount: 20
+
+  tempValue: null,
+  currentTempButton: null,
 };
 
 const loadControls = () => {
@@ -23,6 +27,9 @@ const loadControls = () => {
   state.headerCityName = document.getElementById("headerCityName");
   state.cityNameInput = document.getElementById("cityNameInput");
   state.cityNameReset = document.getElementById("cityNameReset");
+
+  state.tempValue = document.getElementById('tempValue');
+  state.currentTempButton = document.getElementById('currentTempButton');
 };
 
 const handleIncreaseTempBtnClick = () => {
@@ -81,11 +88,63 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
+//  Wave 4
+
+const getTemp = () => {
+  return axios
+  .get('http://localhost:5000/weather', {
+      params: {
+      lat: 28.5656649,
+      lon: -81.5856742,
+      },
+  })
+  .then(response => {
+      const tempKevin = response.data.main.temp;
+      const tempCelsius = Math.floor(tempKevin - 273.15);
+      state.tempValueCount = tempCelsius;
+      state.tempValue.textContent = tempCelsius;
+      console.log(response.data);
+  })
+
+  .catch(error => {
+    console.error("Error:", error);
+  });
+};
+
+// const getLatLon = () => {
+//   return axios
+//   .get('http://localhost:5000/location', {
+//       params: {
+//       q: state.cityNameInput.value,
+//       },
+//   })
+//   .then(response => {
+//       const { lat: latitude, lon: longitude } = response.data[0];
+//       return { latitude, longitude };
+//       console.log(response)
+//   })
+
+//   .catch(error => {
+//     console.error("Error:", error);
+//   });
+// };
+
 const handleCityBtnClick = () => {
   const city = state.cityNameInput.value;
   if (city) {
     state.headerCityName.textContent = city;
     state.cityNameInput.value = "";
+
+    // getLatLon(city)
+    // return axios
+    // .get('localhost:5000/locatiom')
+    //   .then(({latitude, longitude}) => {
+
+    //   })
+
+    //   .catch(error => {
+    //     console.error("Error:", error);
+    //   });
   };
 };
 
@@ -103,6 +162,10 @@ const registerEvents = () => {
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.cityNameInput.addEventListener("keydown",handleCityBtnEnter);
   state.cityNameReset.addEventListener("click", handleCityBtnClick);
+
+  // Wave 4
+  state.currentTempButton.addEventListener("click", getTemp)
+
 };
 
 const onLoad = () => {
