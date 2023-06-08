@@ -1,4 +1,7 @@
 "use strict";
+
+//const { default: axios } = require("axios");
+
 const MAX_DEGREE = 60;
 const MIN_DEGREE = -90;
 
@@ -11,6 +14,7 @@ const state ={
   headerCityName: null,
   cityNameInput: null,
   cityNameReset: null,
+  currentTempButton: null,
   //data
   tempValueCount: 20
 };
@@ -23,6 +27,7 @@ const loadControls = () => {
   state.headerCityName = document.getElementById("headerCityName");
   state.cityNameInput = document.getElementById("cityNameInput");
   state.cityNameReset = document.getElementById("cityNameReset");
+  state.currentTempButton = document.getElementById("currentTempButton");
 };
 
 const handleIncreaseTempBtnClick = () => {
@@ -96,6 +101,38 @@ const handleCityBtnEnter = (event) => {
   };
 };
 
+const getCurrentTemperature = () => {
+  //handleCityBtnClick();
+
+  const city = state.headerCityName.textContent;
+
+  return axios
+    .get('http://localhost:5000/location', {params: {
+      p: city,
+      format: 'json',
+      },
+    })
+    .then((response) => {
+      const locationData = response.data;
+      const cityName = locationData.city;
+
+      state.headerCityName.textContent = cityName;
+
+      axios.get(`http://localhost:5000/weather?${locationData.lat}&lon=${locationData.lon}`)
+      .then(()=>{
+          const temperature = response.data.main.temp;
+          const tempCelsius = Math.round(temperature - 273.15);
+          state.tempValue.textContent = tempCelsius;
+          handleChangeBackgroundColor();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    })
+    .catch((error) =>{
+      console.log(error);
+    });
+  };
 const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleIncreaseTempBtnClick);
   state.decreaseTempControl.addEventListener("click", handleDecreaseTempBtnClick);
@@ -103,6 +140,7 @@ const registerEvents = () => {
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.cityNameInput.addEventListener("keydown",handleCityBtnEnter);
   state.cityNameReset.addEventListener("click", handleCityBtnClick);
+  state.currentTempButton.addEventListener("click", getCurrentTemperature);
 };
 
 const onLoad = () => {
