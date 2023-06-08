@@ -8,6 +8,9 @@ const state ={
   tempValue: null,
   decreaseTempControl:null,
   landscape: null,
+  headerCityName: null,
+  cityNameInput: null,
+  cityNameReset: null,
   //data
   tempValueCount: 20
 };
@@ -17,6 +20,9 @@ const loadControls = () => {
   state.tempValue = document.getElementById("tempValue");
   state.decreaseTempControl = document.getElementById("decreaseTempControl");
   state.landscape = document.getElementById("landscape");
+  state.headerCityName = document.getElementById("headerCityName");
+  state.cityNameInput = document.getElementById("cityNameInput");
+  state.cityNameReset = document.getElementById("cityNameReset");
 };
 
 const handleIncreaseTempBtnClick = () => {
@@ -75,12 +81,28 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
+const handleCityBtnClick = () => {
+  const city = state.cityNameInput.value;
+  if (city) {
+    state.headerCityName.textContent = city;
+    state.cityNameInput.value = "";
+  };
+};
+
+const handleCityBtnEnter = (event) => {
+  if (event.keyCode == 13) {
+    event.preventDefault();
+    state.cityNameReset.click();
+  };
+};
 
 const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleIncreaseTempBtnClick);
   state.decreaseTempControl.addEventListener("click", handleDecreaseTempBtnClick);
   state.increaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
+  state.cityNameInput.addEventListener("keydown",handleCityBtnEnter);
+  state.cityNameReset.addEventListener("click", handleCityBtnClick);
 };
 
 const onLoad = () => {
