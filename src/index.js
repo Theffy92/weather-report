@@ -125,11 +125,45 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
+// const handleCityName = () => {
+//   const city = state.cityNameInput.value;
+//   if (city) {
+//     state.headerCityName.textContent = city;
+//   };
+// };
+
+const setDefaultCity = (city) => {
+  localStorage.setItem('defaultCity', city);
+};
+
+const getDefaultCity = () => {
+  return localStorage.getItem('defaultCity');
+};
+
+const loadDefaultCity = () => {
+  const defaultCity = 'Corrientes';
+  state.cityNameInput.value= defaultCity;
+  state.headerCityName.textContent = defaultCity;
+  const temp = 22;
+  state.tempValueCount = temp;
+  state.tempValue.textContent = temp;
+  setDefaultCity(defaultCity);
+  handleChangeBackgroundColor();
+};
+
 const handleCityName = () => {
   const city = state.cityNameInput.value;
   if (city) {
     state.headerCityName.textContent = city;
-  };
+  }
+  setDefaultCity(city);
+};
+
+const handleResetBtn = () =>{
+    const defaultCity = 'Corrientes';
+    state.cityNameInput.value = defaultCity;
+    state.headerCityName.textContent = defaultCity;
+    setDefaultCity(defaultCity);
 };
 
 const handleIncreaseTempBtnClick = () => {
@@ -152,10 +186,13 @@ const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.currentTempButton.addEventListener("click", getCurrentTemperature);
-  state.cityNameReset.addEventListener("click", getCurrentTemperature);
-  state.cityNameInput.addEventListener("input", handleCityName)
+  //state.cityNameReset.addEventListener("click", getCurrentTemperature);
+  state.cityNameInput.addEventListener("input", handleCityName);
+  state.cityNameReset.addEventListener("click", handleResetBtn);
   state.skySelect.addEventListener("change", skySelection);
   skySelection();
+  //the event below is used to load the default city when the page is loaded or reloaded
+  window.addEventListener('load', loadDefaultCity);
 };
 
 const onLoad = () => {
