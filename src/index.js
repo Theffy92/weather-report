@@ -120,7 +120,6 @@ const handleCityBtnClick = () => {
     const city = state.cityNameInput.value;
     if (city) {
       state.headerCityName.textContent = city;
-      state.cityNameInput.value = "";
     };
   };
 
