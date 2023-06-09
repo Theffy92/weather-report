@@ -36,19 +36,60 @@ const loadControls = () => {
   state.gardenContent = document.getElementById('gardenContent');
 };
 
-const handleIncreaseTempBtnClick = () => {
-  if(state.tempValueCount < MAX_DEGREE){
-    state.tempValueCount += 1;
-  }
-  state.tempValue.textContent = state.tempValueCount;
-};
+const getCurrentTemperature = () => {
+  const city = state.cityNameInput.value;
 
-const handleDecreaseTempBtnClick = () => {
-  if(state.tempValueCount > MIN_DEGREE){
-    state.tempValueCount -= 1;
-  }
-  state.tempValue.textContent = state.tempValueCount;
+  return axios
+    .get('http://localhost:5000/location', {params: {
+      q: city,
+      },
+    })
+    .then((response) => {
+      const locationData = response.data[0];
+      const cityName = locationData.city;
+
+      state.headerCityName.textContent = cityName;
+      handleCityName();
+      axios.get(`http://localhost:5000/weather?lat=${locationData.lat}&lon=${locationData.lon}`)
+      .then((response)=>{
+          const temperature = response.data.main.temp;
+          const tempCelsius = Math.floor(temperature - 273.15);
+          state.tempValueCount = tempCelsius;
+          state.tempValue.textContent = tempCelsius;
+          console.log(response.data)
+          handleChangeBackgroundColor();
+      })
+      .catch((error) => {
+        console.log("Error temperature:", error);
+      });
+    })
+    .catch((error) =>{
+      console.log("Error location:", error);
+    });
   };
+
+const skySelection = () => {
+  const skySelect = state.skySelect.value;
+
+  switch (skySelect) {
+    case 'Sunny':
+      sky.textContent = "☀️ ☀️ ☀️ ☀️ ☀️";
+      gardenContent.classList = "garden__content sunny";
+      break;
+    case 'Cloudy':
+      sky.textContent = "🌤 🌤 🌤 🌤 🌤";
+      gardenContent.classList = "garden__content cloudy";
+      break;
+    case 'Rainy':
+      sky.textContent = "🌧 🌧 🌧 🌧 🌧";
+      gardenContent.classList = "garden__content rainy";
+      break;
+    case 'Snowy':
+      sky.textContent = "❄️ ❄️ ❄️ ❄️ ❄️";
+      gardenContent.classList = "garden__content snowy";
+      break;
+  }
+};
 
 const landscapeSelection = (img) => {
   state.landscape.innerHTML = '';
@@ -84,74 +125,26 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
-const getCurrentTemperature = () => {
+const handleCityName = () => {
   const city = state.cityNameInput.value;
-
-  return axios
-    .get('http://localhost:5000/location', {params: {
-      q: city,
-      },
-    })
-    .then((response) => {
-      const locationData = response.data[0];
-      const cityName = locationData.city;
-
-      state.headerCityName.textContent = cityName;
-      handleCityBtnClick();
-      axios.get(`http://localhost:5000/weather?lat=${locationData.lat}&lon=${locationData.lon}`)
-      .then((response)=>{
-          const temperature = response.data.main.temp;
-          const tempCelsius = Math.floor(temperature - 273.15);
-          state.tempValueCount = tempCelsius;
-          state.tempValue.textContent = tempCelsius;
-          console.log(response.data)
-          handleChangeBackgroundColor();
-      })
-      .catch((error) => {
-        console.log("Error temperature:", error);
-      });
-    })
-    .catch((error) =>{
-      console.log("Error location:", error);
-    });
+  if (city) {
+    state.headerCityName.textContent = city;
   };
-
-const handleCityBtnClick = () => {
-    const city = state.cityNameInput.value;
-    if (city) {
-      state.headerCityName.textContent = city;
-    };
-  };
-
-const handleCityBtnEnter = (event) => {
-    if (event.keyCode == 13) {
-      event.preventDefault();
-      getCurrentTemperature();
-    };
-  };
-
-const skySelection = () => {
-  const skySelect = state.skySelect.value;
-
-  switch (skySelect) {
-    case 'Sunny':
-      sky.textContent = "☀️ ☀️ ☀️ ☀️ ☀️";
-      gardenContent.classList = "garden__content sunny";
-      break;
-    case 'Cloudy':
-      sky.textContent = "🌤 🌤 🌤 🌤 🌤";
-      gardenContent.classList = "garden__content cloudy";
-      break;
-    case 'Rainy':
-      sky.textContent = "🌧 🌧 🌧 🌧 🌧";
-      gardenContent.classList = "garden__content rainy";
-      break;
-    case 'Snowy':
-      sky.textContent = "❄️ ❄️ ❄️ ❄️ ❄️";
-      gardenContent.classList = "garden__content snowy";
-      break;
-  }
 };
+
+const handleIncreaseTempBtnClick = () => {
+  if(state.tempValueCount < MAX_DEGREE){
+    state.tempValueCount += 1;
+  }
+  state.tempValue.textContent = state.tempValueCount;
+};
+
+const handleDecreaseTempBtnClick = () => {
+  if(state.tempValueCount > MIN_DEGREE){
+    state.tempValueCount -= 1;
+  }
+  state.tempValue.textContent = state.tempValueCount;
+  };
 
 const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleIncreaseTempBtnClick);
@@ -160,13 +153,7 @@ const registerEvents = () => {
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.currentTempButton.addEventListener("click", getCurrentTemperature);
   state.cityNameReset.addEventListener("click", getCurrentTemperature);
-  state.cityNameInput.addEventListener("keydown", (event) => {
-    if (event.keyCode === 13) {
-      event.preventDefault();
-      getCurrentTemperature();
-    }
-  });
-  
+  state.cityNameInput.addEventListener("input", handleCityName)
   state.skySelect.addEventListener("change", skySelection);
   skySelection();
 };
