@@ -1,7 +1,5 @@
 "use strict";
 
-//const { default: axios } = require("axios");
-
 const MAX_DEGREE = 60;
 const MIN_DEGREE = -90;
 
@@ -15,8 +13,7 @@ const state ={
   cityNameInput: null,
   cityNameReset: null,
   currentTempButton: null,
-  //data
-  tempValueCount: 20
+  tempValueCount: 0,
 };
 
 const loadControls = () => {
@@ -50,8 +47,6 @@ const landscapeSelection = (img) => {
   const newImageEl = document.createElement("img");
   newImageEl.src = newImage;
   newImageEl.alt = "a landscape";
-  // newImageEl.style.height = '500px';
-  // newImageEl.style.width = '700px';
   state.landscape.prepend(newImageEl);
 };
 
@@ -86,61 +81,69 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
-const handleCityBtnClick = () => {
-  const city = state.cityNameInput.value;
-  if (city) {
-    state.headerCityName.textContent = city;
-    state.cityNameInput.value = "";
-  };
-};
-
-const handleCityBtnEnter = (event) => {
-  if (event.keyCode == 13) {
-    event.preventDefault();
-    state.cityNameReset.click();
-  };
-};
-
 const getCurrentTemperature = () => {
-  //handleCityBtnClick();
-
-  const city = state.headerCityName.textContent;
+ 
+  const city = state.cityNameInput.value;
 
   return axios
     .get('http://localhost:5000/location', {params: {
-      p: city,
-      format: 'json',
+      q: city,
+      //format: 'json',
       },
     })
     .then((response) => {
-      const locationData = response.data;
+      const locationData = response.data[0];
       const cityName = locationData.city;
 
       state.headerCityName.textContent = cityName;
-
-      axios.get(`http://localhost:5000/weather?${locationData.lat}&lon=${locationData.lon}`)
-      .then(()=>{
+      handleCityBtnClick();
+      axios.get(`http://localhost:5000/weather?lat=${locationData.lat}&lon=${locationData.lon}`)
+      .then((response)=>{
           const temperature = response.data.main.temp;
-          const tempCelsius = Math.round(temperature - 273.15);
+          const tempCelsius = Math.floor(temperature - 273.15);
+          state.tempValueCount = tempCelsius;
           state.tempValue.textContent = tempCelsius;
+          console.log(response.data)
           handleChangeBackgroundColor();
       })
       .catch((error) => {
-        console.log(error);
+        console.log("Error temperature:", error);
       });
     })
     .catch((error) =>{
-      console.log(error);
+      console.log("Error location:", error);
     });
   };
+
+const handleCityBtnClick = () => {
+    const city = state.cityNameInput.value;
+    if (city) {
+      state.headerCityName.textContent = city;
+      state.cityNameInput.value = "";
+    };
+  };
+
+const handleCityBtnEnter = (event) => {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      //state.cityNameReset.click();
+      getCurrentTemperature();
+    };
+  };
+
 const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleIncreaseTempBtnClick);
   state.decreaseTempControl.addEventListener("click", handleDecreaseTempBtnClick);
   state.increaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
-  state.cityNameInput.addEventListener("keydown",handleCityBtnEnter);
-  state.cityNameReset.addEventListener("click", handleCityBtnClick);
   state.currentTempButton.addEventListener("click", getCurrentTemperature);
+  state.cityNameReset.addEventListener("click", getCurrentTemperature);
+  state.cityNameInput.addEventListener("keydown", (event) => {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      getCurrentTemperature();
+    }
+  });
 };
 
 const onLoad = () => {
