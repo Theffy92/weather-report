@@ -125,13 +125,6 @@ const handleChangeBackgroundColor = () => {
   }
 };
 
-// const handleCityName = () => {
-//   const city = state.cityNameInput.value;
-//   if (city) {
-//     state.headerCityName.textContent = city;
-//   };
-// };
-
 const setDefaultCity = (city) => {
   localStorage.setItem('defaultCity', city);
 };
@@ -186,7 +179,6 @@ const registerEvents = () => {
   state.increaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.decreaseTempControl.addEventListener("click", handleChangeBackgroundColor);
   state.currentTempButton.addEventListener("click", getCurrentTemperature);
-  //state.cityNameReset.addEventListener("click", getCurrentTemperature);
   state.cityNameInput.addEventListener("input", handleCityName);
   state.cityNameReset.addEventListener("click", handleResetBtn);
   state.skySelect.addEventListener("change", skySelection);
